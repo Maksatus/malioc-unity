@@ -247,15 +247,21 @@ namespace DELTation.MaliOfflineCompiler.Editor
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        Arguments =
-                            $"--core Mali-G76 --format json -{stageFlag} {shaderFilePath}",
-                        FileName = "malioc.exe",
+                        Arguments = $"/C malioc --core Mali-G76 --format json -{stageFlag} \"{shaderFilePath}\"",
+                        FileName = "cmd.exe",
                         CreateNoWindow = true,
                         RedirectStandardOutput = true,
+                        RedirectStandardError = true,
                         UseShellExecute = false,
                     },
                 };
                 process.Start();
+
+                string error = process.StandardError.ReadToEnd();
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    throw new Exception(error);
+                }
 
                 string json = process.StandardOutput.ReadToEnd();
                 RuntimeMaliocShader model = MaliocOutputParser.Parse(json);
