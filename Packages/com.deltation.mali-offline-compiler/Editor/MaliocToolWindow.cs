@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using DELTation.MaliOfflineCompiler.Editor.Compilation;
 using DELTation.MaliOfflineCompiler.Editor.Models;
 using DELTation.MaliOfflineCompiler.Editor.Parsing;
@@ -240,7 +241,7 @@ namespace DELTation.MaliOfflineCompiler.Editor
                 {
                     CompiledShaderStageType.Vertex => "v",
                     CompiledShaderStageType.Pixel => "f",
-                    _ => throw new ArgumentOutOfRangeException(),
+                    var _ => throw new ArgumentOutOfRangeException(),
                 };
 
                 var process = new Process
@@ -255,15 +256,26 @@ namespace DELTation.MaliOfflineCompiler.Editor
                         UseShellExecute = false,
                     },
                 };
-                process.Start();
 
-                string error = process.StandardError.ReadToEnd();
+                var jsonBuilder = new StringBuilder();
+                var errorBuilder = new StringBuilder();
+
+                process.OutputDataReceived += (_, args) => { jsonBuilder.AppendLine(args.Data); };
+                process.ErrorDataReceived += (_, args) => { errorBuilder.AppendLine(args.Data); };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+
+                string error = errorBuilder.ToString();
+
                 if (!string.IsNullOrWhiteSpace(error))
                 {
                     throw new Exception(error);
                 }
 
-                string json = process.StandardOutput.ReadToEnd();
+                string json = jsonBuilder.ToString();
                 RuntimeMaliocShader model = MaliocOutputParser.Parse(json);
 
                 File.Delete(shaderFilePath);
@@ -343,7 +355,7 @@ namespace DELTation.MaliOfflineCompiler.Editor
             return true;
         }
 
-        private bool HaveSameKeywords(in CompiledShaderVariant variant1, in CompiledShaderVariant variant2)
+        private static bool HaveSameKeywords(in CompiledShaderVariant variant1, in CompiledShaderVariant variant2)
         {
             if (variant1.Keywords.Length != variant2.Keywords.Length)
             {
