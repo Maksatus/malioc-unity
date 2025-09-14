@@ -37,6 +37,8 @@ ProjectSettings/AndroidLogcatSettings.asset
 # Mono auto generated files
 mono_crash.*
 
+.utmp/
+
 # Build results
 [Rr]elease/
 [Rr]eleases/
