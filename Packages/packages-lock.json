@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.deltation.mali-offline-compiler": {
+    "com.maksatus.mali-offline-compiler": {
       "version": "file:com.deltation.mali-offline-compiler",
       "depth": 0,
       "source": "embedded",
