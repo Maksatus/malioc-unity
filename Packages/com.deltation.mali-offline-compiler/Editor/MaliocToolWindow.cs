@@ -157,7 +157,10 @@ namespace DELTation.MaliOfflineCompiler.Editor
             GUILayout.EndHorizontal();
 
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, false, true);
-
+            
+            if (_expanded == null || _expanded.Length < shownShader.Variants.Length) 
+                Array.Resize(ref _expanded, shownShader.Variants.Length);
+           
             for (int index = 0; index < shownShader.Variants.Length; index++)
             {
                 ref CompiledShaderVariant variant = ref shownShader.Variants[index];
